@@ -1,0 +1,44 @@
+include 'example/configs/common.gin'
+
+# PICK YOUR FRONTEND AND ENCODER
+AudioClassifier.frontend = @Leaf()
+
+# LEAF PARAMETERS
+n_filters = 40
+sample_rate = 16000
+
+Leaf.learn_pooling = True
+Leaf.learn_filters = True
+Leaf.conv1d_cls = @GaborConv1D
+Leaf.activation = @SquaredModulus()
+Leaf.pooling_cls = @GaussianLowpass
+Leaf.n_filters = %n_filters
+Leaf.sample_rate = %sample_rate
+Leaf.window_len = 25.0
+Leaf.window_stride = 10.0
+Leaf.compression_fn = @PCENLayer()
+Leaf.preemp = False
+Leaf.regularizer_fn = None
+Leaf.mean_var_norm = False
+Leaf.spec_augment = False
+
+
+# INITIALIZES THE FILTERING LAYER
+Leaf.complex_conv_init = @GaborInit()
+GaborInit.sample_rate = %sample_rate
+GaborInit.min_freq = 60.0
+GaborInit.max_freq = 7800.0
+GaborInit.normalize_energy = False
+
+# INITIALIZES THE POOLING FILTER
+Leaf.pooling_init = @pooling/tf.keras.initializers.Constant
+pooling/tf.keras.initializers.Constant.value = 0.4
+
+# PCEN PARAMETERS
+PCENLayer.alpha = 0.96
+PCENLayer.smooth_coef = 0.04
+PCENLayer.delta = 2.0
+PCENLayer.floor = 1e-12
+PCENLayer.trainable = True
+PCENLayer.learn_smooth_coef = True
+PCENLayer.per_channel_smooth_coef = True
