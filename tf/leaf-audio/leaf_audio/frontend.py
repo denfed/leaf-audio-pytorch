@@ -191,14 +191,14 @@ class Leaf(tf.keras.models.Model):
     print("tf: before conv: ", outputs)
     outputs = self._complex_conv(outputs)
     print("tf: after conv: ", outputs)
-    # outputs = self._activation(outputs)
-    # outputs = self._pooling(outputs)
-    # outputs = tf.maximum(outputs, 1e-5)
-    # outputs = self._compress_fn(outputs)
-    # if self._instance_norm is not None:
-    #   outputs = self._instance_norm(outputs)
-    # if training:
-    #   outputs = self._spec_augment_fn(outputs)
+    outputs = self._activation(outputs)
+    outputs = self._pooling(outputs)
+    outputs = tf.maximum(outputs, 1e-5)
+    outputs = self._compress_fn(outputs)
+    if self._instance_norm is not None:
+      outputs = self._instance_norm(outputs)
+    if training:
+      outputs = self._spec_augment_fn(outputs)
     return outputs
 
 

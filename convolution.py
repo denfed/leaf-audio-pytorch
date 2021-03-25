@@ -58,7 +58,6 @@ class GaborConv1D(nn.Module):
         initialized_kernel = kernel_initializer(torch.zeros(self._filters, 2), sample_rate=16000, min_freq=60.0, max_freq=7800.0)
         self._kernel = nn.Parameter(initialized_kernel)
         # TODO: implement kernel regularizer here
-        # TODO: kernel constraint here
         self._kernel_constraint = GaborConstraint(self._kernel_size)
         if self._use_bias:
             self._bias = nn.Parameter(torch.zeros(self.filters*2,), requires_grad=trainable) # TODO: validate that requires grad is the same as trainable
@@ -66,6 +65,7 @@ class GaborConv1D(nn.Module):
     def forward(self, x):
         kernel = self._kernel_constraint(self._kernel)
         if self._sort_filters:
+            # TODO: validate this
             filter_order = torch.argsort(kernel[:, 0])
             kernel = torch.gather(kernel, dim=0, index=filter_order)
         
@@ -77,5 +77,5 @@ class GaborConv1D(nn.Module):
         stacked_filters = stacked_filters.unsqueeze(1)
         output = F.conv1d(x, stacked_filters,
                           bias=self._bias if self._use_bias else None, stride=self._strides,
-                          padding=(self._kernel_size//2))
+                          padding=self._padding)
         return output

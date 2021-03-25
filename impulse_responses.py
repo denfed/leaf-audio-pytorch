@@ -21,15 +21,34 @@ def gabor_impulse_response(t: Tensor, center: Tensor,
 
 
 def gabor_filters(kernel, size: int = 401) -> Tensor:
-  """Computes the gabor filters from its parameters for a given size.
+    """Computes the gabor filters from its parameters for a given size.
 
-  Args:
+    Args:
     kernel: Tensor<float>[filters, 2] the parameters of the Gabor kernels.
     size: the size of the output tensor.
 
-  Returns:
+    Returns:
     A Tensor<float>[filters, size].
-  """
-  return gabor_impulse_response(
-      torch.range(-(size // 2), (size) // 2, dtype=torch.float32),
-      center=kernel[:, 0], fwhm=kernel[:, 1])
+    """
+    return gabor_impulse_response(
+        torch.arange(-(size // 2), (size + 1) // 2, dtype=torch.float32),
+        center=kernel[:, 0], fwhm=kernel[:, 1])
+
+
+def gaussian_lowpass(sigma: Tensor, filter_size: int):
+    """Generates gaussian windows centered in zero, of std sigma.
+
+    Args:
+    sigma: tf.Tensor<float>[1, 1, C, 1] for C filters.
+    filter_size: length of the filter.
+
+    Returns:
+    A tf.Tensor<float>[1, filter_size, C, 1].
+    """
+
+    sigma = torch.clamp(sigma, (2. / filter_size), 0.5)
+    t = torch.arange(0, filter_size, dtype=torch.float32)
+    t = t.view(1, filter_size, 1, 1)
+    numerator = t - 0.5 * (filter_size - 1)
+    denominator = sigma * 0.5 * (filter_size - 1)
+    return torch.exp(-0.5 * (numerator / denominator)**2)

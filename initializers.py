@@ -43,3 +43,8 @@ def GaborInit(tensor: Tensor, **kwargs) -> Tensor:
     else:
         # TODO: FINISH
         pass
+
+
+def ConstantInit(tensor: Tensor) -> Tensor:
+    tensor[:,:,:,:] = 0.4
+    return tensor

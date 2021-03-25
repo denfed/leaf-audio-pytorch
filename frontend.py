@@ -4,7 +4,7 @@ from typing import Callable, Optional
 
 import initializers
 import convolution
-
+import pooling
 
 # TODO: implement weight freezing if learn_filters is False
 
@@ -29,7 +29,7 @@ class SquaredModulus(nn.Module):
         self._pool = nn.AvgPool1d(kernel_size=2, stride=2)
 
     def forward(self, x):
-        x = torch.transpose(x, 2, 1) #TODO: validate this
+        x = torch.transpose(x, 2, 1)
         output = 2 * self._pool(x**2)
         return torch.transpose(output, 2, 1)
 
@@ -50,7 +50,7 @@ class Leaf(nn.Module):
         learn_filters: bool = True,
         conv1d_cls=convolution.GaborConv1D,
         activation=SquaredModulus(),
-        # pooling_cls=pooling.GaussianLowpass,
+        pooling_cls=pooling.GaussianLowpass,
         n_filters: int = 40,
         sample_rate: int = 16000,
         window_len: float = 25.,
@@ -66,7 +66,7 @@ class Leaf(nn.Module):
         preemp: bool = False,
         preemp_init=initializers.PreempInit,
         complex_conv_init=initializers.GaborInit,
-        # pooling_init: _Initializer = tf.keras.initializers.Constant(0.4),
+        pooling_init=initializers.ConstantInit,
         # regularizer_fn: Optional[tf.keras.regularizers.Regularizer] = None,
         mean_var_norm: bool = False,
         spec_augment: bool = False,
@@ -102,10 +102,17 @@ class Leaf(nn.Module):
             kernel_regularizer=None,
             name='tfbanks_complex_conv',
             trainable=learn_filters)
-        print("testing")
-        print("weightsafter", self._complex_conv._kernel)
 
         self._activation = activation
+        self._pooling = pooling_cls(
+            kernel_size=window_size,
+            strides=window_stride,
+            filter_size=n_filters,
+            padding=(window_size//2),
+            use_bias=False,
+            kernel_initializer=pooling_init,
+            # kernel_regularizer=regularizer_fn if learn_pooling else None,
+            trainable=learn_pooling)
 
     def forward(self, x):
         outputs = x.unsqueeze(1) if len(x.shape) < 2 else x # TODO: validate this
@@ -117,7 +124,8 @@ class Leaf(nn.Module):
 
         outputs = self._complex_conv(outputs)
         outputs = self._activation(outputs)
-            
+        outputs = self._pooling(outputs)
+
         return outputs
 
 

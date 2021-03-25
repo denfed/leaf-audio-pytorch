@@ -19,7 +19,7 @@ if __name__ == "__main__":
     py_leaf = torch_frontend.Leaf()
 
     # (batch_size, num_samples, 1)
-    test_audio = np.random.random((2,15,1)).astype(np.float32)
+    test_audio = np.random.random((8,15000,1)).astype(np.float32)
 
     # convert to channel first for pytorch
     t_audio = torch.Tensor(test_audio).permute(0,2,1)

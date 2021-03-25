@@ -16,7 +16,7 @@ if __name__ == "__main__":
     tf_leaf = tf_frontend.Leaf()
 
     # (batch_size, num_samples, 1)
-    test_audio = np.random.random((2,15,1)).astype(np.float32)
+    test_audio = np.random.random((8,15000,1)).astype(np.float32)
 
     # convert to channel first for pytorch
     tf_audio = tf.convert_to_tensor(test_audio, dtype=tf.float32)
