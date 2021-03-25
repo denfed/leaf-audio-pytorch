@@ -14,19 +14,16 @@ from torch import Tensor
 
 import logging
 logging.getLogger('tensorflow').disabled = True
-
+np.random.seed(0)
 if __name__ == "__main__":
     py_leaf = torch_frontend.Leaf()
-    tf_leaf = tf_frontend.Leaf()
 
     # (batch_size, num_samples, 1)
     test_audio = np.random.random((2,15,1)).astype(np.float32)
 
     # convert to channel first for pytorch
     t_audio = torch.Tensor(test_audio).permute(0,2,1)
-    tf_audio = tf.convert_to_tensor(test_audio, dtype=tf.float32)
     print(t_audio)
-    print(tf_audio)
 
     # print("after preemp")
     # print(tf_leaf(tf_audio))
@@ -34,11 +31,6 @@ if __name__ == "__main__":
 
     # print("Comparing preemp conv weights")
     # print(py_leaf._preemp_conv.weight.shape)
-    print("tf conv weights ", tf_leaf._complex_conv.get_weights(),tf.shape(tf_leaf._complex_conv.get_weights()))
-
-    print(tf_leaf(tf_audio))
-
-    print("tf conv weights ", tf_leaf._complex_conv.get_weights(), tf.shape(tf_leaf._complex_conv.get_weights()))
 
     print(py_leaf(t_audio))
 

@@ -8,6 +8,32 @@ import convolution
 
 # TODO: implement weight freezing if learn_filters is False
 
+class SquaredModulus(nn.Module):
+    """Squared modulus layer.
+
+    Returns a keras layer that implements a squared modulus operator.
+    To implement the squared modulus of C complex-valued channels, the expected
+    input dimension is N*1*W*(2*C) where channels role alternates between
+    real and imaginary part.
+    The way the squared modulus is computed is real ** 2 + imag ** 2 as follows:
+    - squared operator on real and imag
+    - average pooling to compute (real ** 2 + imag ** 2) / 2
+    - multiply by 2
+
+    Attributes:
+        pool: average-pooling function over the channel dimensions
+    """
+
+    def __init__(self):
+        super(SquaredModulus, self).__init__()
+        self._pool = nn.AvgPool1d(kernel_size=2, stride=2)
+
+    def forward(self, x):
+        x = torch.transpose(x, 2, 1) #TODO: validate this
+        output = 2 * self._pool(x**2)
+        return torch.transpose(output, 2, 1)
+
+
 class Leaf(nn.Module):
     """Pytorch layer that implements time-domain filterbanks.
 
@@ -23,7 +49,7 @@ class Leaf(nn.Module):
         learn_pooling: bool = True,
         learn_filters: bool = True,
         conv1d_cls=convolution.GaborConv1D,
-        # activation=SquaredModulus(),
+        activation=SquaredModulus(),
         # pooling_cls=pooling.GaussianLowpass,
         n_filters: int = 40,
         sample_rate: int = 16000,
@@ -39,8 +65,7 @@ class Leaf(nn.Module):
         #     per_channel_smooth_coef=True),
         preemp: bool = False,
         preemp_init=initializers.PreempInit,
-        # complex_conv_init: _Initializer = initializers.GaborInit(
-        #   sample_rate=16000, min_freq=60.0, max_freq=7800.0),
+        complex_conv_init=initializers.GaborInit,
         # pooling_init: _Initializer = tf.keras.initializers.Constant(0.4),
         # regularizer_fn: Optional[tf.keras.regularizers.Regularizer] = None,
         mean_var_norm: bool = False,
@@ -72,19 +97,26 @@ class Leaf(nn.Module):
             padding=(window_size//2), # TODO: validate that this is correct
             use_bias=False,
             input_shape=(None, None, 1),
-            # kernel_initializer=complex_conv_init,
-            kernel_initializer=None,
+            kernel_initializer=complex_conv_init,
             # kernel_regularizer=regularizer_fn if learn_filters else None,
             kernel_regularizer=None,
             name='tfbanks_complex_conv',
             trainable=learn_filters)
+        print("testing")
+        print("weightsafter", self._complex_conv._kernel)
+
+        self._activation = activation
 
     def forward(self, x):
+        outputs = x.unsqueeze(1) if len(x.shape) < 2 else x # TODO: validate this
         if self._preemp:
             outputs = self._preemp_conv(x)
             # Pytorch padding trick needed because 'same' doesn't exist and kernel is even.
             # Remove the first value in the feature dim of the tensor to match tf's padding.
             outputs = outputs[:,:,1:]
+
+        outputs = self._complex_conv(outputs)
+        outputs = self._activation(outputs)
             
         return outputs
 

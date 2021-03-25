@@ -188,7 +188,9 @@ class Leaf(tf.keras.models.Model):
     outputs = inputs[:, :, tf.newaxis] if inputs.shape.ndims < 3 else inputs
     if self._preemp:
       outputs = self._preemp_conv(outputs)
+    print("tf: before conv: ", outputs)
     outputs = self._complex_conv(outputs)
+    print("tf: after conv: ", outputs)
     # outputs = self._activation(outputs)
     # outputs = self._pooling(outputs)
     # outputs = tf.maximum(outputs, 1e-5)

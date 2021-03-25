@@ -4,6 +4,8 @@ import torch
 from torch import Tensor
 import numpy as np
 
+import melfilters
+
 def PreempInit(tensor: Tensor, alpha: float=0.97) -> Tensor:
     """Pytorch initializer for the pre-emphasis.
 
@@ -23,3 +25,21 @@ def PreempInit(tensor: Tensor, alpha: float=0.97) -> Tensor:
         tensor[0, 0, 1] = 1
     
         return tensor
+
+
+def GaborInit(tensor: Tensor, **kwargs) -> Tensor:
+    kwargs.pop('n_filters', None)
+
+    shape = tensor.shape
+    print(shape)
+    n_filters = shape[0] if len(shape) == 2 else shape[-1] // 2
+    window_len = 401 if len(shape) == 2 else shape[0]
+    gabor_filters = melfilters.Gabor(
+        n_filters=n_filters, window_len=window_len, **kwargs)
+    if len(shape) == 2:
+        with torch.no_grad():
+            tensor = gabor_filters.gabor_params_from_mels
+            return tensor
+    else:
+        # TODO: FINISH
+        pass
