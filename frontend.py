@@ -5,6 +5,7 @@ from typing import Callable, Optional
 import initializers
 import convolution
 import pooling
+import postprocessing
 
 # TODO: implement weight freezing if learn_filters is False
 
@@ -55,14 +56,15 @@ class Leaf(nn.Module):
         sample_rate: int = 16000,
         window_len: float = 25.,
         window_stride: float = 10.,
-        # compression_fn: _TensorCallable = postprocessing.PCENLayer(
-        #     alpha=0.96,
-        #     smooth_coef=0.04,
-        #     delta=2.0,
-        #     floor=1e-12,
-        #     trainable=True,
-        #     learn_smooth_coef=True,
-        #     per_channel_smooth_coef=True),
+        # compression_fn=None,
+        compression_fn=postprocessing.PCENLayer(
+            alpha=0.96,
+            smooth_coef=0.04,
+            delta=2.0,
+            floor=1e-12,
+            trainable=True,
+            learn_smooth_coef=True,
+            per_channel_smooth_coef=True),
         preemp: bool = False,
         preemp_init=initializers.PreempInit,
         complex_conv_init=initializers.GaborInit,
@@ -114,6 +116,14 @@ class Leaf(nn.Module):
             # kernel_regularizer=regularizer_fn if learn_pooling else None,
             trainable=learn_pooling)
 
+        self._compress_fn = compression_fn if compression_fn else nn.Identity()
+        # Pass number of filters to PCEN layer for on-the-fly building.
+        # We do this to avoid adding num_channels as an arg into the class itself to avoid double setting the same arg
+        # when instantiating the Leaf class.
+        if isinstance(self._compress_fn, postprocessing.PCENLayer):
+            self._compress_fn.build(num_channels=n_filters)
+
+
     def forward(self, x):
         outputs = x.unsqueeze(1) if len(x.shape) < 2 else x # TODO: validate this
         if self._preemp:
@@ -125,6 +135,11 @@ class Leaf(nn.Module):
         outputs = self._complex_conv(outputs)
         outputs = self._activation(outputs)
         outputs = self._pooling(outputs)
+        # As far as I know, torch cannot perform element-wise maximum between a tensor and scalar, here is a workaround.
+        output_copy = torch.zeros_like(outputs)
+        output_copy[:,:,:] = 1e-5
+        outputs = torch.maximum(outputs, output_copy)
+        outputs = self._compress_fn(outputs)
 
         return outputs
 

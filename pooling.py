@@ -39,12 +39,9 @@ class GaussianLowpass(nn.Module):
 
     def forward(self, x):
         kernel = impulse_responses.gaussian_lowpass(self._kernel, self.kernel_size)
-        # kernel = kernel.squeeze(3)
-        # kernel = kernel.permute(2, 0, 1)
-        #
-        # outputs = F.conv1d(x, kernel, stride=self.strides, groups=self.filter_size, padding=self.padding)
-        kernel = kernel.permute(2,0,1,3)
-        outputs = F.conv2d(x.unsqueeze(3), kernel, groups=self.filter_size, stride=(self.strides,1), padding=0)
-        outputs = outputs.permute(0,3,2,1)
-        pass
+        kernel = kernel.squeeze(3)
+        kernel = kernel.permute(2, 0, 1)
+
+        outputs = F.conv1d(x, kernel, stride=self.strides, groups=self.filter_size, padding=self.padding)
+        return outputs
 
