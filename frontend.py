@@ -123,7 +123,6 @@ class Leaf(nn.Module):
         if isinstance(self._compress_fn, postprocessing.PCENLayer):
             self._compress_fn.build(num_channels=n_filters)
 
-
     def forward(self, x):
         outputs = x.unsqueeze(1) if len(x.shape) < 2 else x # TODO: validate this
         if self._preemp:

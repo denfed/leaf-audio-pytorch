@@ -32,5 +32,23 @@ if __name__ == "__main__":
     # print("Comparing preemp conv weights")
     # print(py_leaf._preemp_conv.weight.shape)
 
-    print(py_leaf(t_audio))
+    # print(py_leaf(t_audio))
+
+    test_pcen = np.random.random((8,94,40)).astype(np.float32)
+    test_pcen_t = torch.Tensor(test_pcen).permute(0,2,1)
+
+    import postprocessing as torch_postprocessing
+
+    pcen = torch_postprocessing.PCENLayer(
+        alpha=0.96,
+        smooth_coef=0.04,
+        delta=2.0,
+        floor=1e-12,
+        trainable=True,
+        learn_smooth_coef=True,
+        per_channel_smooth_coef=True
+    )
+    pcen.build(40)
+
+    pcen(test_pcen_t)
 

@@ -27,8 +27,23 @@ class ExponentialMovingAverage(nn.Module):
 
     def forward(self, x, initial_state):
         w = torch.clamp(self._weights, 0.0, 1.0)
-        for i in x.permute(2,0,1):
-            print(i)
+        func = lambda a, y: w * y + (1.0 - w) * a
+
+        def scan(foo, x):
+            res = []
+            res.append(x[0].unsqueeze(0))
+            a_ = x[0].clone()
+
+            for i in range(1, len(x)):
+                res.append(foo(a_, x[i]).unsqueeze(0))
+                a_ = foo(a_, x[i])
+
+            return torch.cat(res)
+
+        res = scan(func, x.permute(2,0,1))
+        return res.permute(1,0,2)
+        # for i in x.permute(2,0,1):
+        #     print(i)
 
     # def call(self, inputs: Tensor, initial_state: Tensor):
     #     """Inputs is of shape [batch, seq_length, num_filters]."""
@@ -110,7 +125,10 @@ class PCENLayer(nn.Module):
         root = torch.maximum(self.root, torch.ones_like(self.root))
 
         ema_smoother = self.ema(x, x[:,:,0])
-        pass
+        one_over_root = 1. / root
+        output = (x.permute(0,2,1) / (self._floor + ema_smoother) ** alpha + self.delta)\
+                ** one_over_root - self.delta ** one_over_root
+        return output.permute(0,2,1)
 
 
 
