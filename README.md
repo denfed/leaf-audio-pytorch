@@ -8,6 +8,8 @@ similar outputs to the original tensorflow implementation. A few small things ar
 **PLEASE leave issues, pull requests, comments, or anything you find in using this repository that may be of value to 
 others who will try to use this.**
 
+### NOTE: I just noticed there is an issue with running this on gpu's. Some tensors that are internally created within the model are not being transferred to the GPU when calling model.cuda(). Looking at a fix currently.
+
 ## Installation
 
 From the root directory of this repo, run:
