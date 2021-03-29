@@ -10,7 +10,7 @@ others who will try to use this.**
 
 ## Installation
 
-From the roo directory of this repo, run:
+From the root directory of this repo, run:
 
 ```
 pip install -e .
