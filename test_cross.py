@@ -16,8 +16,8 @@ import logging
 logging.getLogger('tensorflow').disabled = True
 
 if __name__ == "__main__":
-    py_leaf = torch_frontend.Leaf()
-    tf_leaf = tf_frontend.Leaf()
+    py_leaf = torch_frontend.Leaf(n_filters=80)
+    tf_leaf = tf_frontend.Leaf(n_filters=80)
 
     # (batch_size, num_samples, 1)
     test_audio = np.random.random((5,8000,1)).astype(np.float32)
@@ -40,7 +40,9 @@ if __name__ == "__main__":
     #
     # print("tf conv weights ", tf_leaf._complex_conv.get_weights(), tf.shape(tf_leaf._complex_conv.get_weights()))
     #
-    print(py_leaf(t_audio))
+    print(py_leaf(t_audio).permute(0,2,1))
 
     print(py_leaf(t_audio).shape)
+
+    print(py_leaf(t_audio).sum().backward())
 
