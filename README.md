@@ -30,7 +30,7 @@ leaf = frontend.Leaf()
 If you are looking to develop on this repo, the `requirements.txt` contains everything needed to run the torch and tf
 implementations of leaf audio simultaneously.
 
-**NOTE: There is some weird depencency stuff going on with the original `leaf-audio` repo. Seems like its a 
+**NOTE: There is some weird dependency stuff going on with the original `leaf-audio` repo. Seems like its a 
 dependency issue with `lingvo` and `waymo-open-dataset`. These below commands are a workaround.**
 
 Install the packages required:
