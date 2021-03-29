@@ -1,16 +1,7 @@
-import convolution as torch_convolution
-import frontend as torch_frontend
-
-import sys
-sys.path.append('tf/leaf-audio/')
-
-import leaf_audio.convolution as tf_convolution
-import leaf_audio.frontend as tf_frontend
-
 import numpy as np
-import tensorflow as tf
 import torch
-from torch import Tensor
+
+import leaf_audio_pytorch.frontend as torch_frontend
 
 import logging
 logging.getLogger('tensorflow').disabled = True
@@ -37,7 +28,7 @@ if __name__ == "__main__":
     test_pcen = np.random.random((8,94,40)).astype(np.float32)
     test_pcen_t = torch.Tensor(test_pcen).permute(0,2,1)
 
-    import postprocessing as torch_postprocessing
+    from leaf_audio_pytorch import postprocessing as torch_postprocessing
 
     pcen = torch_postprocessing.PCENLayer(
         alpha=0.96,

@@ -1,16 +1,8 @@
-import convolution as torch_convolution
-import frontend as torch_frontend
-
-import sys
-sys.path.append('tf/leaf-audio/')
-
-import leaf_audio.convolution as tf_convolution
 import leaf_audio.frontend as tf_frontend
 
 import numpy as np
 import tensorflow as tf
-import torch
-from torch import Tensor
+
 np.random.seed(0)
 if __name__ == "__main__":
     tf_leaf = tf_frontend.Leaf()

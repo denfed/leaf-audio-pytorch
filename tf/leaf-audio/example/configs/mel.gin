@@ -1,4 +1,0 @@
-# -*-Python-*-
-include 'example/configs/common.gin'
-
-AudioClassifier.frontend = @MelFilterbanks()

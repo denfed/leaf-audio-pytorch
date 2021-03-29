@@ -3,8 +3,8 @@ from torch import nn
 import torch.nn.functional as F
 import math
 
-import impulse_responses
-import initializers
+from leaf_audio_pytorch import impulse_responses
+
 
 class GaborConstraint(nn.Module):
     """Constraint mu and sigma, in radians.

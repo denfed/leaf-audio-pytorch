@@ -2,9 +2,8 @@
 
 import torch
 from torch import Tensor
-import numpy as np
 
-import melfilters
+from leaf_audio_pytorch import melfilters
 
 def PreempInit(tensor: Tensor, alpha: float=0.97) -> Tensor:
     """Pytorch initializer for the pre-emphasis.
@@ -26,12 +25,11 @@ def PreempInit(tensor: Tensor, alpha: float=0.97) -> Tensor:
     
         return tensor
 
-
 def GaborInit(tensor: Tensor, **kwargs) -> Tensor:
     kwargs.pop('n_filters', None)
 
     shape = tensor.shape
-    print(shape)
+
     n_filters = shape[0] if len(shape) == 2 else shape[-1] // 2
     window_len = 401 if len(shape) == 2 else shape[0]
     gabor_filters = melfilters.Gabor(
@@ -43,7 +41,6 @@ def GaborInit(tensor: Tensor, **kwargs) -> Tensor:
     else:
         # TODO: FINISH
         pass
-
 
 def ConstantInit(tensor: Tensor) -> Tensor:
     tensor[:,:,:,:] = 0.4

@@ -1,11 +1,10 @@
 import torch
 from torch import nn
-from typing import Callable, Optional
 
-import initializers
-import convolution
-import pooling
-import postprocessing
+from leaf_audio_pytorch import initializers
+from leaf_audio_pytorch import convolution
+from leaf_audio_pytorch import pooling
+from leaf_audio_pytorch import postprocessing
 
 # TODO: implement weight freezing if learn_filters is False
 
@@ -141,7 +140,3 @@ class Leaf(nn.Module):
         outputs = self._compress_fn(outputs)
 
         return outputs
-
-
-if __name__ == "__main__": 
-    print("done")

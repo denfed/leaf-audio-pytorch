@@ -1,16 +1,9 @@
-import convolution as torch_convolution
-import frontend as torch_frontend
-
-import sys
-sys.path.append('tf/leaf-audio/')
-
-import leaf_audio.convolution as tf_convolution
+import leaf_audio_pytorch.frontend as torch_frontend
 import leaf_audio.frontend as tf_frontend
 
 import numpy as np
 import tensorflow as tf
 import torch
-from torch import Tensor
 
 import logging
 logging.getLogger('tensorflow').disabled = True

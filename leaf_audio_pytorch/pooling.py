@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-import impulse_responses
+from leaf_audio_pytorch import impulse_responses
 
 class GaussianLowpass(nn.Module):
     """Depthwise pooling (each input filter has its own pooling filter).
