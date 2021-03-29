@@ -65,6 +65,9 @@ and operation mirrors the tensorflow implementation (to within a few significant
 Calling `.backward()` on `Leaf()` throws no errors, meaning backprop works as expected. However, I do not
   yet know how this will function during training.
   
+* As PyTorch and Tensorflow follow different tensor ordering conventions, `Leaf()` does all of its operations and 
+  outputs tensors with channels _first_. 
+  
 ## Reference
 
 All credit and attribution goes to [Neil Zeghidour](https://research.google/people/106382/) and the [Google Research](https://research.google/) team who wrote the paper and created the 
