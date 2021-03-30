@@ -7,13 +7,13 @@ import logging
 logging.getLogger('tensorflow').disabled = True
 np.random.seed(0)
 if __name__ == "__main__":
-    py_leaf = torch_frontend.Leaf()
+    py_leaf = torch_frontend.Leaf().cuda()
 
     # (batch_size, num_samples, 1)
     test_audio = np.random.random((8,15000,1)).astype(np.float32)
 
     # convert to channel first for pytorch
-    t_audio = torch.Tensor(test_audio).permute(0,2,1)
+    t_audio = torch.Tensor(test_audio).permute(0,2,1).cuda()
     print(t_audio)
 
     # print("after preemp")
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # print("Comparing preemp conv weights")
     # print(py_leaf._preemp_conv.weight.shape)
 
-    # print(py_leaf(t_audio))
+    print(py_leaf(t_audio))
 
     test_pcen = np.random.random((8,94,40)).astype(np.float32)
     test_pcen_t = torch.Tensor(test_pcen).permute(0,2,1)

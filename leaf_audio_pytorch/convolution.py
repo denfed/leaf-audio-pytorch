@@ -61,6 +61,11 @@ class GaborConv1D(nn.Module):
         self._kernel_constraint = GaborConstraint(self._kernel_size)
         if self._use_bias:
             self._bias = nn.Parameter(torch.zeros(self.filters*2,), requires_grad=trainable) # TODO: validate that requires grad is the same as trainable
+
+        # Register an initialization tensor here for creating the gabor impulse response to automatically handle cpu/gpu
+        # device selection.
+        self.register_buffer("gabor_filter_init_t",
+                             torch.arange(-(self._kernel_size // 2), (self._kernel_size + 1) // 2, dtype=torch.float32))
         
     def forward(self, x):
         kernel = self._kernel_constraint(self._kernel)
@@ -68,8 +73,8 @@ class GaborConv1D(nn.Module):
             # TODO: validate this
             filter_order = torch.argsort(kernel[:, 0])
             kernel = torch.gather(kernel, dim=0, index=filter_order)
-        
-        filters = impulse_responses.gabor_filters(kernel, self._kernel_size)
+
+        filters = impulse_responses.gabor_filters(kernel, self._kernel_size, self.gabor_filter_init_t)
         real_filters = torch.real(filters)
         img_filters = torch.imag(filters)
         stacked_filters = torch.stack([real_filters, img_filters], dim=1)

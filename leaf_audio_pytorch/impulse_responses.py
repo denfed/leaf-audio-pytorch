@@ -20,7 +20,7 @@ def gabor_impulse_response(t: Tensor, center: Tensor,
     return denominator * sinusoid * gaussian
 
 
-def gabor_filters(kernel, size: int = 401) -> Tensor:
+def gabor_filters(kernel, size: int = 401, t_tensor=None) -> Tensor:
     """Computes the gabor filters from its parameters for a given size.
 
     Args:
@@ -31,11 +31,11 @@ def gabor_filters(kernel, size: int = 401) -> Tensor:
     A Tensor<float>[filters, size].
     """
     return gabor_impulse_response(
-        torch.arange(-(size // 2), (size + 1) // 2, dtype=torch.float32),
+        t_tensor,
         center=kernel[:, 0], fwhm=kernel[:, 1])
 
 
-def gaussian_lowpass(sigma: Tensor, filter_size: int):
+def gaussian_lowpass(sigma: Tensor, filter_size: int, t_tensor: Tensor):
     """Generates gaussian windows centered in zero, of std sigma.
 
     Args:
@@ -47,8 +47,7 @@ def gaussian_lowpass(sigma: Tensor, filter_size: int):
     """
 
     sigma = torch.clamp(sigma, (2. / filter_size), 0.5)
-    t = torch.arange(0, filter_size, dtype=torch.float32)
-    t = t.view(1, filter_size, 1, 1)
+    t = t_tensor.view(1, filter_size, 1, 1)
     numerator = t - 0.5 * (filter_size - 1)
     denominator = sigma * 0.5 * (filter_size - 1)
     return torch.exp(-0.5 * (numerator / denominator)**2)

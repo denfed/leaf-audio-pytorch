@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 from leaf_audio_pytorch import impulse_responses
 
+
 class GaussianLowpass(nn.Module):
     """Depthwise pooling (each input filter has its own pooling filter).
 
@@ -37,8 +38,12 @@ class GaussianLowpass(nn.Module):
         initialized_kernel = self.kernel_initializer(torch.zeros(1, 1, self.filter_size, 1).type(torch.float32))
         self._kernel = nn.Parameter(initialized_kernel, requires_grad=self.trainable)
 
+        # Register an initialization tensor here for creating the gaussian lowpass impulse response to automatically
+        # handle cpu/gpu device selection.
+        self.register_buffer("gaussian_lowpass_init_t", torch.arange(0, self.kernel_size, dtype=torch.float32))
+
     def forward(self, x):
-        kernel = impulse_responses.gaussian_lowpass(self._kernel, self.kernel_size)
+        kernel = impulse_responses.gaussian_lowpass(self._kernel, self.kernel_size, self.gaussian_lowpass_init_t)
         kernel = kernel.squeeze(3)
         kernel = kernel.permute(2, 0, 1)
 
