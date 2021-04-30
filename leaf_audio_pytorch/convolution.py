@@ -25,14 +25,13 @@ class GaborConstraint(nn.Module):
         self._kernel_size = kernel_size
 
     def forward(self, kernel):
-        with torch.no_grad():
-            mu_lower = 0.
-            mu_upper = math.pi
-            sigma_lower = 4 * math.sqrt(2 * math.log(2)) / math.pi
-            sigma_upper = self._kernel_size * math.sqrt(2 * math.log(2)) / math.pi
-            clipped_mu = torch.clamp(kernel[:, 0], mu_lower, mu_upper)
-            clipped_sigma = torch.clamp(kernel[:, 1], sigma_lower, sigma_upper)
-            return torch.stack([clipped_mu, clipped_sigma], dim=1)
+        mu_lower = 0.
+        mu_upper = math.pi
+        sigma_lower = 4 * math.sqrt(2 * math.log(2)) / math.pi
+        sigma_upper = self._kernel_size * math.sqrt(2 * math.log(2)) / math.pi
+        clipped_mu = torch.clamp(kernel[:, 0], mu_lower, mu_upper)
+        clipped_sigma = torch.clamp(kernel[:, 1], sigma_lower, sigma_upper)
+        return torch.stack([clipped_mu, clipped_sigma], dim=1)
 
 
 class GaborConv1D(nn.Module):
