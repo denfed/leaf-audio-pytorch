@@ -55,7 +55,7 @@ class GaborConv1D(nn.Module):
         self._sort_filters = sort_filters
 
         initialized_kernel = kernel_initializer(torch.zeros(self._filters, 2), sample_rate=16000, min_freq=60.0, max_freq=7800.0)
-        self._kernel = nn.Parameter(initialized_kernel)
+        self._kernel = nn.Parameter(initialized_kernel, requires_grad=trainable)
         # TODO: implement kernel regularizer here
         self._kernel_constraint = GaborConstraint(self._kernel_size)
         if self._use_bias:
