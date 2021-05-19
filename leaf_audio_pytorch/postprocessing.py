@@ -2,6 +2,10 @@ import torch
 from torch import nn
 from torch import Tensor
 
+def log_compression(inputs: Tensor, epsilon=1e-6) -> Tensor:
+    "Log compression"
+    return torch.log(inputs+epsilon)
+
 
 class ExponentialMovingAverage(nn.Module):
     """Computes of an exponential moving average of an sequential input."""
